@@ -1,6 +1,6 @@
-figma.showUI(__html__);
+figma.showUI(__html__, {width: 700, height: 400});
 
-const obj = {
+const assets = {
     components: [],
     colorStyles: [],
     textStyles: [],
@@ -8,21 +8,25 @@ const obj = {
     gridStyles: [],
 };
 
-function getStyles() {
-    const colorStyles = figma.getLocalPaintStyles();
-    const textStyles = figma.getLocalTextStyles();
-    const effectStyles = figma.getLocalEffectStyles();
-    const gridStyles = figma.getLocalGridStyles();
+const classToObject = theClass => {
+    const originalClass = theClass || {};
+    const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(originalClass));
+    return keys.reduce((classAsObj, key) => {
+        classAsObj[key] = originalClass[key];
+        return classAsObj;
+    }, {});
+};
 
-    obj.colorStyles = colorStyles.map(color => color);
-    obj.textStyles = textStyles.map(text => text);
-    obj.effectStyles = effectStyles.map(effect => effect);
-    obj.gridStyles = gridStyles.map(grid => grid);
+function getStyles() {
+    assets.colorStyles = figma.getLocalPaintStyles().map(colors => classToObject(colors));
+    assets.textStyles = figma.getLocalTextStyles().map(texts => classToObject(texts));
+    assets.effectStyles = figma.getLocalEffectStyles().map(effects => classToObject(effects));
+    assets.gridStyles = figma.getLocalGridStyles().map(grids => classToObject(grids));
 }
 
 function traverseComponents(node) {
     if ('children' in node) {
-        if (node.type === 'COMPONENT') obj.components.push(node);
+        if (node.type === 'COMPONENT') assets.components.push(classToObject(node));
 
         if (node.type !== 'INSTANCE') {
             for (const child of node.children) {
@@ -36,19 +40,13 @@ async function collectAssets() {
     await traverseComponents(figma.root);
     await getStyles();
 
-    console.log('assets collected');
-
-    figma.ui.onmessage = () => {
-        figma.ui.postMessage = () => ({type: 'loaded-assets', message: obj});
-    };
+    await figma.ui.postMessage({type: 'loaded-assets', message: JSON.stringify(assets)});
 }
-
-collectAssets();
 
 //Modifying shit bellow
 
 function createInstance() {
-    const component = obj.components[0];
+    const component = assets.components[0];
 
     const instance = component.createInstance();
 
@@ -57,8 +55,14 @@ function createInstance() {
     figma.currentPage.selection = [instance];
 }
 
-figma.ui.onmessage = () => {
-    createInstance();
+figma.ui.onmessage = msg => {
+    if (msg.type === 'onLoad') {
+        collectAssets();
+    }
+
+    if (msg.type === 'create') {
+        createInstance();
+    }
 
     // figma.closePlugin();
 
