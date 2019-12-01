@@ -22,20 +22,20 @@ const App = ({}) => {
 
     React.useEffect(() => {
         // This is how we read messages sent from the plugin controller
-        window.onmessage = (event) => {
-            const { type, message } = event.data.pluginMessage;
-            if (type === 'create-rectangles') {
+        window.onmessage = event => {
+            const {type, message} = event.data.pluginMessage;
+            if (type === 'loaded-assets') {
                 console.log(`Figma Says: ${message}`);
-            };
-        }
+            }
+        };
     }, []);
 
     return (
         <div>
             <img src={require('../assets/logo.svg')} />
-            <h2>Rectangle Creator</h2>
+            <h2>Figma Runner</h2>
             <p>
-                Count: <input ref={countRef} />
+                <input ref={countRef} />
             </p>
             <button id="create" onClick={onCreate}>
                 Create
