@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../styles/ui.css';
 
-const Search = ({tabIndex}) => {
+const Search = ({tabIndex, setValue, value}) => {
     const [command] = React.useState(['Apply', 'Run', 'Insert', 'Go to', 'Create']);
 
     const [placeholder] = React.useState([
@@ -18,7 +18,13 @@ const Search = ({tabIndex}) => {
                 <div style={{padding: 12, backgroundColor: '#16161d', color: '#fff', width: 64, marginRight: 8}}>
                     {command[tabIndex]}
                 </div>
-                <input style={{width: 600}} autoFocus placeholder={placeholder[tabIndex]} />
+                <input
+                    style={{width: 600}}
+                    autoFocus
+                    onChange={e => setValue(e.target.value)}
+                    placeholder={placeholder[tabIndex]}
+                    value={value}
+                />
             </div>
             <div>
                 <p style={{margin: 0, background: '#16161d', color: '#fff'}}>Press tab to change command</p>

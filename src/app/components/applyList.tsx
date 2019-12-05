@@ -1,8 +1,8 @@
 import * as React from 'react';
 import '../styles/ui.css';
 
-const ApplyList = ({assets}) => {
-    const {colorStyles, textStyles, components, effectStyles, gridStyles} = assets;
+const ApplyList = ({assets, value}) => {
+    const {colorStyles, textStyles, effectStyles, gridStyles} = assets;
 
     const setFontWeight = fontWeight => {
         switch (fontWeight.toLowerCase()) {
@@ -39,10 +39,18 @@ const ApplyList = ({assets}) => {
         }
     };
 
+    const filterStyles = style => {
+        return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
+    };
+
+    const filteredColorStyles = filterStyles(colorStyles);
+    const filteredTextStyles = filterStyles(textStyles);
+    const filteredEffectStyles = filterStyles(effectStyles);
+    const filteredGridStyles = filterStyles(gridStyles);
+
     return (
         <div>
-            {console.log(assets)}
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+            {/* <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
                 <p>Components</p>
                 {components.map((item, i) => {
                     return (
@@ -67,37 +75,39 @@ const ApplyList = ({assets}) => {
                         </div>
                     );
                 })}
-            </div>
+            </div> */}
+            {
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+                    {filteredColorStyles.length > 0 && <p>Fill Styles</p>}
+                    {filteredColorStyles.map((item, i) => {
+                        const color = item.paints[0].color;
+
+                        const r = Math.floor(255 * color.r);
+                        const g = Math.floor(255 * color.g);
+                        const b = Math.floor(255 * color.b);
+
+                        return (
+                            <div key={i} style={{display: 'flex', alignItems: 'center'}}>
+                                <div
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        borderRadius: '50%',
+                                        backgroundColor: `rgb(${r}, ${g}, ${b})`,
+                                        border: '1px solid #f6f6f6',
+                                        marginRight: 16,
+                                    }}
+                                />
+                                <p>{item.name}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+            }
+
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <p>Fill Styles</p>
-                {colorStyles.map((item, i) => {
-                    const color = item.paints[0].color;
-
-                    const r = Math.floor(255 * color.r);
-                    const g = Math.floor(255 * color.g);
-                    const b = Math.floor(255 * color.b);
-
-                    return (
-                        <div key={i} style={{display: 'flex', alignItems: 'center'}}>
-                            <div
-                                style={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                    border: '1px solid #f6f6f6',
-                                    marginRight: 16,
-                                }}
-                            />
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <p>Border Styles</p>
-                {colorStyles.map((item, i) => {
+                {filteredColorStyles.length > 0 && <p>Border Styles</p>}
+                {filteredColorStyles.map((item, i) => {
                     const color = item.paints[0].color;
 
                     const r = Math.floor(255 * color.r);
@@ -130,8 +140,8 @@ const ApplyList = ({assets}) => {
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <p>Text Styles</p>
-                {textStyles.map((item, i) => {
+                {filteredTextStyles.length > 0 && <p>Text Styles</p>}
+                {filteredTextStyles.map((item, i) => {
                     const fontWeight = setFontWeight(item.fontName.style);
 
                     return (
@@ -155,8 +165,8 @@ const ApplyList = ({assets}) => {
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <p>Effect Styles</p>
-                {effectStyles.map((item, i) => {
+                {filteredEffectStyles.length > 0 && <p>Effect Styles</p>}
+                {filteredEffectStyles.map((item, i) => {
                     return (
                         <div key={i} style={{display: 'flex', alignItems: 'center'}}>
                             <p>{item.name}</p>
@@ -166,9 +176,8 @@ const ApplyList = ({assets}) => {
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <p>Grid Styles</p>
-                {gridStyles.map((item, i) => {
-                    console.log(item);
+                {filteredGridStyles.length > 0 && <p>Grid Styles</p>}
+                {filteredGridStyles.map((item, i) => {
                     return (
                         <div key={i} style={{display: 'flex', alignItems: 'center'}}>
                             <p>{item.name}</p>

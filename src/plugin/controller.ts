@@ -91,11 +91,12 @@ function applyGridStyle() {
     const gridStyle = assets.gridStyles[0];
     const selected = figma.currentPage.selection;
 
-    const isValid = !selected.some(node => !(node.type === 'FRAME' || node.type === 'COMPONENT'));
+    const isValid = !selected.some(
+        node => !(node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE')
+    );
 
     if (isValid) {
         selected.forEach(node => {
-            console.log(node.type);
             return (node.gridStyleId = `S:${gridStyle.key},`);
         });
     } else {

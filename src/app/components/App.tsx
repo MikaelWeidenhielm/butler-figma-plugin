@@ -6,7 +6,8 @@ import ApplyList from './applyList';
 
 const App = ({}) => {
     const [isLoading, setLoading] = React.useState(true);
-    const [assets, setAssets] = React.useState();
+    const [assets, setAssets] = React.useState([]);
+    const [value, setValue] = React.useState('');
     const [tabIndex, setTabIndex] = React.useState(0);
 
     const onLoad = React.useCallback(() => {
@@ -16,10 +17,6 @@ const App = ({}) => {
     const onCancel = React.useCallback(() => {
         parent.postMessage({pluginMessage: {type: 'cancel'}}, '*');
     }, []);
-
-    // const onClick = React.useCallback(() => {
-    //     parent.postMessage({pluginMessage: {type: 'apply-fill-style'}}, '*');
-    // }, []);
 
     const applyBorderStyle = React.useCallback(() => {
         parent.postMessage({pluginMessage: {type: 'apply-border-style'}}, '*');
@@ -81,8 +78,8 @@ const App = ({}) => {
         <p>loading</p>
     ) : (
         <div>
-            <Search tabIndex={tabIndex} />
-            {tabIndex === 0 && <ApplyList assets={assets} />}
+            <Search tabIndex={tabIndex} value={value} setValue={setValue} />
+            {tabIndex === 0 && <ApplyList assets={assets} value={value} />}
 
             <button id="create" onClick={applyGridStyle}>
                 Create
