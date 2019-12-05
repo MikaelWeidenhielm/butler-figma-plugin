@@ -24,20 +24,19 @@ function getStyles() {
     assets.gridStyles = figma.getLocalGridStyles().map(grids => classToObject(grids));
 }
 
-function traverseComponents(node) {
-    if ('children' in node) {
-        if (node.type === 'COMPONENT') assets.components.push(classToObject(node));
+function collectComponents() {
+    const components = figma.root.findAll(node => node.type === 'COMPONENT').map(component => classToObject(component));
+    assets.components = components;
+}
 
-        if (node.type !== 'INSTANCE') {
-            for (const child of node.children) {
-                traverseComponents(child);
-            }
-        }
-    }
+function loadFonts() {
+    figma.listAvailableFontsAsync().then(res => {
+        console.log(res);
+    });
 }
 
 async function collectAssets() {
-    await traverseComponents(figma.root);
+    await collectComponents();
     await getStyles();
 
     await figma.ui.postMessage({type: 'loaded-assets', message: JSON.stringify(assets)});
@@ -55,6 +54,55 @@ function createInstance() {
     figma.currentPage.selection = [instance];
 }
 
+function applyTextStyle() {
+    const textStyle = assets.textStyles[0];
+    const selected = figma.currentPage.selection;
+    const isText = !selected.some(node => node.type !== 'TEXT');
+
+    if (isText) {
+        selected.forEach(node => (node.textStyleId = `S:${textStyle.key},`));
+    } else {
+        alert('Can only apply textstyles when text is selected');
+    }
+}
+
+function applyFillStyle() {
+    const colorStyle = assets.colorStyles[0];
+    const selected = figma.currentPage.selection;
+
+    selected.forEach(node => (node.fillStyleId = `S:${colorStyle.key},`));
+}
+
+function applyBorderStyle() {
+    const colorStyle = assets.colorStyles[0];
+    const selected = figma.currentPage.selection;
+
+    selected.forEach(node => (node.strokeStyleId = `S:${colorStyle.key},`));
+}
+
+function applyEffectStyle() {
+    const effectStyle = assets.effectStyles[0];
+    const selected = figma.currentPage.selection;
+
+    selected.forEach(node => (node.effectStyleId = `S:${effectStyle.key},`));
+}
+
+function applyGridStyle() {
+    const gridStyle = assets.gridStyles[0];
+    const selected = figma.currentPage.selection;
+
+    const isValid = !selected.some(node => !(node.type === 'FRAME' || node.type === 'COMPONENT'));
+
+    if (isValid) {
+        selected.forEach(node => {
+            console.log(node.type);
+            return (node.gridStyleId = `S:${gridStyle.key},`);
+        });
+    } else {
+        alert('Can only apply grids to frames');
+    }
+}
+
 figma.ui.onmessage = msg => {
     if (msg.type === 'onLoad') {
         collectAssets();
@@ -62,6 +110,26 @@ figma.ui.onmessage = msg => {
 
     if (msg.type === 'create') {
         createInstance();
+    }
+
+    if (msg.type === 'apply-text-style') {
+        applyTextStyle();
+    }
+
+    if (msg.type === 'apply-fill-style') {
+        applyFillStyle();
+    }
+
+    if (msg.type === 'apply-border-style') {
+        applyBorderStyle();
+    }
+
+    if (msg.type === 'apply-effect-style') {
+        applyEffectStyle();
+    }
+
+    if (msg.type === 'apply-grid-style') {
+        applyGridStyle();
     }
 
     // figma.closePlugin();

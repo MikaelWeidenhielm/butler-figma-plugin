@@ -2,20 +2,12 @@ import * as React from 'react';
 import '../styles/ui.css';
 
 import Search from './search';
+import ApplyList from './applyList';
 
 const App = ({}) => {
     const [isLoading, setLoading] = React.useState(true);
     const [assets, setAssets] = React.useState();
-
-    // const countRef = React.useCallback((element: HTMLInputElement) => {
-    //     if (element) element.value = '5';
-    //     textbox.current = element;
-    // }, []);
-
-    // const onCreate = React.useCallback(() => {
-    //     const count = parseInt(textbox.current.value, 10);
-    //     parent.postMessage({pluginMessage: {type: 'create', count}}, '*');
-    // }, []);
+    const [tabIndex, setTabIndex] = React.useState(0);
 
     const onLoad = React.useCallback(() => {
         parent.postMessage({pluginMessage: {type: 'onLoad'}}, '*');
@@ -25,6 +17,53 @@ const App = ({}) => {
         parent.postMessage({pluginMessage: {type: 'cancel'}}, '*');
     }, []);
 
+    // const onClick = React.useCallback(() => {
+    //     parent.postMessage({pluginMessage: {type: 'apply-fill-style'}}, '*');
+    // }, []);
+
+    const applyBorderStyle = React.useCallback(() => {
+        parent.postMessage({pluginMessage: {type: 'apply-border-style'}}, '*');
+    }, []);
+
+    const applyFillStyle = React.useCallback(() => {
+        parent.postMessage({pluginMessage: {type: 'apply-fill-style'}}, '*');
+    }, []);
+
+    const applyTextStyle = React.useCallback(() => {
+        parent.postMessage({pluginMessage: {type: 'apply-text-style'}}, '*');
+    }, []);
+
+    const applyEffectStyle = React.useCallback(() => {
+        parent.postMessage({pluginMessage: {type: 'apply-effect-style'}}, '*');
+    }, []);
+
+    const applyGridStyle = React.useCallback(() => {
+        parent.postMessage({pluginMessage: {type: 'apply-grid-style'}}, '*');
+    }, []);
+
+    //check for tab presses
+    const handleUserKeyPress = event => {
+        if (event.keyCode === 9) {
+            event.preventDefault();
+
+            if (tabIndex === 4) {
+                setTabIndex(0);
+            } else {
+                setTabIndex(tabIndex + 1);
+            }
+        }
+    };
+
+    //check for tab presses
+    React.useEffect(() => {
+        window.addEventListener('keydown', handleUserKeyPress);
+
+        return () => {
+            window.removeEventListener('keydown', handleUserKeyPress);
+        };
+    }, [handleUserKeyPress]);
+
+    //Initialize UI with data
     React.useEffect(() => {
         // This is how we read messages sent from the plugin controller
         onLoad();
@@ -32,47 +71,20 @@ const App = ({}) => {
         window.onmessage = event => {
             const {type, message} = event.data.pluginMessage;
             if (type === 'loaded-assets') {
-                console.log('got msg');
-                // console.log(JSON.stringify(message));
                 setAssets(JSON.parse(message));
                 setLoading(false);
             }
         };
     }, []);
 
-    const onClick = () => {
-        console.log(assets.colorStyles);
-    };
-
     return isLoading ? (
         <p>loading</p>
     ) : (
         <div>
-            <Search />
-            {assets.colorStyles.map((item, i) => {
-                const color = item.paints[0].color;
+            <Search tabIndex={tabIndex} />
+            {tabIndex === 0 && <ApplyList assets={assets} />}
 
-                const r = Math.floor(255 * color.r);
-                const g = Math.floor(255 * color.g);
-                const b = Math.floor(255 * color.b);
-
-                return (
-                    <div key={i} style={{display: 'flex', alignItems: 'center'}}>
-                        <div
-                            style={{
-                                width: 20,
-                                height: 20,
-                                borderRadius: '50%',
-                                backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                border: '1px solid #f6f6f6',
-                                marginRight: 16,
-                            }}
-                        />
-                        <p>{item.name}</p>
-                    </div>
-                );
-            })}
-            <button id="create" onClick={onClick}>
+            <button id="create" onClick={applyGridStyle}>
                 Create
             </button>
             <button onClick={onCancel}>Cancel</button>
