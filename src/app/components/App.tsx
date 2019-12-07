@@ -3,6 +3,7 @@ import '../styles/ui.css';
 
 import Search from './search';
 import ApplyList from './applyList';
+import InsertList from './insertList';
 
 const App = ({}) => {
     const [isLoading, setLoading] = React.useState(true);
@@ -38,8 +39,8 @@ const App = ({}) => {
         parent.postMessage({pluginMessage: {type: 'apply-grid-style'}}, '*');
     }, []);
 
-    //check for tab presses
-    const handleUserKeyPress = event => {
+    //check keyboard events
+    const handleKeyDown = event => {
         if (event.keyCode === 9) {
             event.preventDefault();
 
@@ -51,14 +52,14 @@ const App = ({}) => {
         }
     };
 
-    //check for tab presses
+    //check keyboard events
     React.useEffect(() => {
-        window.addEventListener('keydown', handleUserKeyPress);
+        window.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            window.removeEventListener('keydown', handleUserKeyPress);
+            window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [handleUserKeyPress]);
+    }, [handleKeyDown]);
 
     //Initialize UI with data
     React.useEffect(() => {
@@ -78,8 +79,17 @@ const App = ({}) => {
         <p>loading</p>
     ) : (
         <div>
-            <Search tabIndex={tabIndex} value={value} setValue={setValue} />
+            <Search
+                tabIndex={tabIndex}
+                value={value}
+                onChange={e => {
+                    setValue(e.target.value);
+                    // setCursor(-1);
+                }}
+            />
             {tabIndex === 0 && <ApplyList assets={assets} value={value} />}
+
+            {tabIndex === 2 && <InsertList assets={assets} value={value} />}
 
             <button id="create" onClick={applyGridStyle}>
                 Create

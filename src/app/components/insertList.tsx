@@ -1,113 +1,59 @@
 import * as React from 'react';
 import '../styles/ui.css';
 
-const ApplyList = ({assets, value}) => {
-    const [cursor, setCursor] = React.useState(-1);
-    const {colorStyles, textStyles, effectStyles, gridStyles} = assets;
-
-    const handleKeyDown = event => {
-        if (event.key === 'ArrowDown' && cursor < maxCursor - 1) {
-            setCursor(cursor + 1);
-        }
-
-        if (event.key === 'ArrowUp' && cursor > -1) {
-            setCursor(cursor - 1);
-        }
-    };
-
-    React.useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [handleKeyDown]);
-
-    React.useEffect(() => {
-        setCursor(-1);
-    }, [value]);
-
-    const setFontWeight = fontWeight => {
-        switch (fontWeight.toLowerCase()) {
-            case 'ultralight':
-            case 'ultra light':
-            case 'extra light':
-            case 'ultralight beta':
-            case 'ultra light beta':
-            case 'extra light beta':
-            case 'thin':
-                return 100;
-            case 'light':
-                return 300;
-            case 'regular':
-            case 'normal':
-                return 400;
-            case 'medium':
-                return 500;
-            case 'semi bold':
-            case 'semibold':
-            case 'demibold':
-            case 'demi bold':
-                return 600;
-            case 'bold':
-                return 700;
-            case 'heavy':
-            case 'extra bold':
-                return 800;
-            case 'black':
-            case 'ultra bold':
-                return 900;
-            default:
-                return 400;
-        }
-    };
+const InsertList = ({assets, value}) => {
+    const {components} = assets;
 
     const filterStyles = style => {
         return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
     };
 
-    const filteredColorStyles = filterStyles(colorStyles);
-    const filteredTextStyles = filterStyles(textStyles);
-    const filteredEffectStyles = filterStyles(effectStyles);
-    const filteredGridStyles = filterStyles(gridStyles);
+    const filteredColorStyles = filterStyles(components);
 
-    const assetTypes = [
-        {
-            title: 'Text styles',
-            assets: filteredTextStyles,
-        },
-        {
-            title: 'Stroke styles',
-            assets: filteredColorStyles,
-        },
-        {
-            title: 'Fill styles',
-            assets: filteredColorStyles,
-        },
-        {
-            title: 'Effect styles',
-            assets: filteredEffectStyles,
-        },
-        {
-            title: 'Grid styles',
-            assets: filteredGridStyles,
-        },
-    ];
+    const arr = [];
 
-    const maxCursor = assetTypes.reduce((acc, nxt) => {
-        return acc + nxt.assets.length;
-    }, 0);
+    // const allAssets = arr.concat(filteredColorStyles, filteredTextStyles, filteredEffectStyles, filteredGridStyles);
+
+    // const isActive = () => {}; // denna kod gör mycket ;;;;~)
+
+    // const assetTypes = {
+    //     text: {
+    //         title: 'Text styles',
+    //         assets: filteredTextStyles,
+    //         index: 0,
+    //     },
+    //     stroke: {
+    //         title: 'Stroke styles',
+    //         assets: filteredColorStyles,
+    //         index: filteredTextStyles.length,
+    //     },
+    //     fill: {
+    //         title: 'Fill styles',
+    //         assets: filteredColorStyles,
+    //         index: filteredColorStyles.length + filteredTextStyles.length,
+    //     },
+    //     effect: {
+    //         title: 'Effect styles',
+    //         assets: filteredEffectStyles,
+    //         index: filteredColorStyles.length + filteredColorStyles.length + filteredTextStyles.length,
+    //     },
+    //     grid: {
+    //         title: 'Grid styles',
+    //         assets: filteredGridStyles,
+    //         index:
+    //             filteredEffectStyles.length +
+    //             filteredColorStyles.length +
+    //             filteredColorStyles.length +
+    //             filteredTextStyles.length,
+    //     },
+    // };
 
     return (
         <div>
-            {assetTypes.map(({title, assets}, mainIndex, orgArr) => {
-                const startIndex = orgArr.slice(0, mainIndex).reduce((acc, nxt) => {
-                    const num = nxt.assets.length;
-                    return acc + num;
-                }, 0);
-
+            {/* {Object.keys(assetTypes).map(assetType => {
+                const {title, assets, index} = assetTypes[assetType];
                 return (
-                    <div key={title} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
                         {assets.length > 0 && <p>{title}</p>}
                         {assets.map((item, i) => {
                             // const color = item.paints[0].color;
@@ -115,7 +61,7 @@ const ApplyList = ({assets, value}) => {
                             // const r = Math.floor(255 * color.r);
                             // const g = Math.floor(255 * color.g);
                             // const b = Math.floor(255 * color.b);
-                            const selected = startIndex + i === cursor;
+                            const selected = index + i === cursor;
                             return (
                                 <div
                                     key={i}
@@ -141,8 +87,8 @@ const ApplyList = ({assets, value}) => {
                         })}
                     </div>
                 );
-            })}
-            {/* <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+            })} */}
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
                 <p>Components</p>
                 {components.map((item, i) => {
                     return (
@@ -167,7 +113,7 @@ const ApplyList = ({assets, value}) => {
                         </div>
                     );
                 })}
-            </div> */}
+            </div>
             {/* 
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
                 {filteredColorStyles.length > 0 && <p>Fill Styles</p>}
@@ -321,4 +267,4 @@ const ApplyList = ({assets, value}) => {
     );
 };
 
-export default ApplyList;
+export default InsertList;
