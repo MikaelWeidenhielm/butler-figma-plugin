@@ -1,15 +1,26 @@
 import * as React from 'react';
 import '../styles/ui.css';
 import GenericItem from './listItems/genericItem';
+import FrameIcon from '../icons/frameIcon';
+import PageIcon from '../icons/pageIcon';
+import VectorIcon from '../icons/vectorIcon';
+import RectangleIcon from '../icons/rectangleIcon';
 import ComponentIcon from '../icons/componentIcon';
+import InstanceIcon from '../icons/instanceIcon';
+import TextIcon from '../icons/textIcon';
+import LineIcon from '../icons/lineIcon';
+import GroupIcon from '../icons/groupIcon';
+import PolygonIcon from '../icons/polygonIcon';
+import EllipseIcon from '../icons/ellipseIcon';
+import StarIcon from '../icons/starIcon';
 
-const InsertList = ({assets, value, wrapper}) => {
+const GoToList = ({assets, value, wrapper}) => {
     const [cursor, setCursor] = React.useState(0);
     // const [isHovering, setIsHovering] = React.useState(false);
 
     // const [scrollTop, setScrollTop] = React.useState(0);
 
-    const {components} = assets;
+    const {frames, pages} = assets;
 
     // React.useEffect(() => {
     //     // if (wrapper.current) {
@@ -70,24 +81,32 @@ const InsertList = ({assets, value, wrapper}) => {
     }, [value]);
 
     const handleSubmit = () => {
-        const selected = filteredComponents[cursor];
+        const selected = allAssets[cursor];
 
-        if (selected.type === 'COMPONENT') {
-            parent.postMessage({pluginMessage: {type: 'create-instance', payload: selected}}, '*');
-        }
+        parent.postMessage({pluginMessage: {type: 'go-to-selected', payload: selected}}, '*');
     };
 
     const filterStyles = style => {
         return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
     };
 
-    const filteredComponents = filterStyles(components);
+    const filteredPages = filterStyles(pages);
+    const filteredFrames = filterStyles(frames);
+
+    const arr = [];
+
+    const allAssets = arr.concat(filteredPages, filteredFrames);
 
     const assetTypes = [
         {
-            title: 'Components',
-            type: 'component',
-            assets: filteredComponents,
+            title: 'Pages',
+            type: 'page',
+            assets: filteredPages,
+        },
+        {
+            title: 'Frames',
+            type: 'frame',
+            assets: filteredFrames,
         },
     ];
 
@@ -118,7 +137,7 @@ const InsertList = ({assets, value, wrapper}) => {
                         {assets.map((item, i) => {
                             const active = startIndex + i === cursor;
 
-                            if (type === 'component') {
+                            if (type === 'page') {
                                 return (
                                     <GenericItem
                                         key={i}
@@ -126,7 +145,52 @@ const InsertList = ({assets, value, wrapper}) => {
                                         submit={() => handleSubmit()}
                                         active={active}
                                         onMouseEnter={() => handleMouseEnter(i)}
-                                        icon={<ComponentIcon />}
+                                        icon={<PageIcon />}
+                                    />
+                                );
+                            }
+
+                            if (type === 'frame') {
+                                console.log(item.type);
+                                const getIcon = () => {
+                                    switch (item.type) {
+                                        case 'FRAME':
+                                            return <FrameIcon />;
+                                        case 'COMPONENT':
+                                            return <ComponentIcon />;
+                                        case 'INSTANCE':
+                                            return <InstanceIcon />;
+                                        case 'GROUP':
+                                            return <GroupIcon />;
+                                        case 'RECTANGLE':
+                                            return <RectangleIcon />;
+                                        case 'POLYGON':
+                                            return <PolygonIcon />;
+                                        case 'ELLIPSE':
+                                            return <EllipseIcon />;
+                                        case 'STAR':
+                                            return <StarIcon />;
+                                        case 'TEXT':
+                                            return <TextIcon />;
+                                        case 'LINE':
+                                            return <LineIcon />;
+                                        case 'VECTOR':
+                                            return <VectorIcon />;
+                                        default:
+                                            return <FrameIcon />;
+                                    }
+                                };
+
+                                const icon = getIcon();
+
+                                return (
+                                    <GenericItem
+                                        key={i}
+                                        item={item}
+                                        submit={() => handleSubmit()}
+                                        active={active}
+                                        onMouseEnter={() => handleMouseEnter(i)}
+                                        icon={icon}
                                     />
                                 );
                             }
@@ -138,4 +202,4 @@ const InsertList = ({assets, value, wrapper}) => {
     );
 };
 
-export default InsertList;
+export default GoToList;

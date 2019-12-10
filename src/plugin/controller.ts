@@ -1,11 +1,18 @@
-figma.showUI(__html__, {width: 700, height: 400});
+figma.showUI(__html__, {width: 600, height: 350});
 
 const assets = {
     components: [],
-    colorStyles: [],
+    fillStyles: [],
+    strokeStyles: [],
     textStyles: [],
     effectStyles: [],
     gridStyles: [],
+    frames: [],
+    pages: [],
+};
+
+const foo = {
+    bar: [],
 };
 
 const classToObject = theClass => {
@@ -18,77 +25,136 @@ const classToObject = theClass => {
 };
 
 function getStyles() {
-    assets.colorStyles = figma.getLocalPaintStyles().map(colors => classToObject(colors));
+    assets.fillStyles = figma.getLocalPaintStyles().map(colors => ({...classToObject(colors), category: 'fill'}));
+
+    assets.strokeStyles = figma.getLocalPaintStyles().map(colors => ({...classToObject(colors), category: 'stroke'}));
+
     assets.textStyles = figma.getLocalTextStyles().map(texts => classToObject(texts));
     assets.effectStyles = figma.getLocalEffectStyles().map(effects => classToObject(effects));
     assets.gridStyles = figma.getLocalGridStyles().map(grids => classToObject(grids));
 }
 
 function collectComponents() {
-    const components = figma.root.findAll(node => node.type === 'COMPONENT').map(component => classToObject(component));
+    const components = figma.root
+        .findAll(node => node.type === 'COMPONENT')
+        .map(node => ({
+            id: node.id,
+            name: node.name,
+            type: node.type,
+            description: node.description,
+            page: figma.currentPage.name,
+        }));
+
     assets.components = components;
 }
 
-function loadFonts() {
-    figma.listAvailableFontsAsync().then(res => {
-        console.log(res);
-    });
+function collectFrames() {
+    const frames = figma.root.children
+        .map(p =>
+            p.type === 'PAGE'
+                ? p.children.map(f => ({
+                      id: f.id,
+                      name: f.name,
+                      type: f.type,
+                      page: p.name,
+                  }))
+                : null
+        )
+        .reduce((acc, val) => {
+            return acc.concat(val);
+        }, []);
+
+    assets.frames = frames;
 }
 
-async function collectAssets() {
-    await collectComponents();
-    await getStyles();
+function collectPages() {
+    const pages = figma.root.children.map(p => ({
+        id: p.id,
+        name: p.name,
+        type: p.type,
+    }));
 
-    await figma.ui.postMessage({type: 'loaded-assets', message: JSON.stringify(assets)});
+    assets.pages = pages;
+}
+
+function collectAssets() {
+    collectComponents();
+    getStyles();
+    collectFrames();
+    collectPages();
+
+    figma.ui.postMessage({type: 'loaded-assets', message: JSON.stringify(assets)});
 }
 
 //Modifying shit bellow
 
-function createInstance() {
-    const component = assets.components[0];
+function createComponentInstance(selected) {
+    const nodeId = selected.id;
+    const node = figma.getNodeById(nodeId);
 
-    const instance = component.createInstance();
+    if (node.type === 'COMPONENT') {
+        const {x, y} = figma.viewport.center;
+        const instance = node.createInstance();
 
-    instance.x = figma.viewport.center.x;
-    instance.y = figma.viewport.center.y;
-    figma.currentPage.selection = [instance];
+        instance.x = x;
+        instance.y = y;
+
+        figma.currentPage.appendChild(instance);
+        figma.currentPage.selection = [instance];
+    }
 }
 
-function applyTextStyle() {
-    const textStyle = assets.textStyles[0];
+function goToSelectedNode(selected) {
+    const nodeId = selected.id;
+    const node = figma.getNodeById(nodeId);
+
+    // Change Page
+    if (node.parent.type === 'PAGE') {
+        figma.currentPage = node.parent;
+    }
+
+    // Select the Node
+    if (node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
+        figma.currentPage.selection = [node];
+        figma.viewport.scrollAndZoomIntoView([node]);
+    }
+
+    // If Page
+    if (node.type === 'PAGE') {
+        figma.currentPage = node;
+    }
+}
+
+function applyTextStyle(key) {
     const selected = figma.currentPage.selection;
     const isText = !selected.some(node => node.type !== 'TEXT');
 
     if (isText) {
-        selected.forEach(node => (node.textStyleId = `S:${textStyle.key},`));
+        selected.forEach(node => (node.textStyleId = `S:${key},`));
     } else {
         alert('Can only apply textstyles when text is selected');
     }
 }
 
-function applyFillStyle() {
-    const colorStyle = assets.colorStyles[0];
+function applyFillStyle(key) {
     const selected = figma.currentPage.selection;
 
-    selected.forEach(node => (node.fillStyleId = `S:${colorStyle.key},`));
+    selected.forEach(node => (node.fillStyleId = `S:${key},`));
 }
 
-function applyBorderStyle() {
-    const colorStyle = assets.colorStyles[0];
+function applyStrokeStyle(key) {
     const selected = figma.currentPage.selection;
 
-    selected.forEach(node => (node.strokeStyleId = `S:${colorStyle.key},`));
+    selected.forEach(node => (node.strokeStyleId = `S:${key},`));
 }
 
-function applyEffectStyle() {
-    const effectStyle = assets.effectStyles[0];
+function applyEffectStyle(key) {
     const selected = figma.currentPage.selection;
 
-    selected.forEach(node => (node.effectStyleId = `S:${effectStyle.key},`));
+    selected.forEach(node => (node.effectStyleId = `S:${key},`));
 }
 
-function applyGridStyle() {
-    const gridStyle = assets.gridStyles[0];
+function applyGridStyle(key) {
     const selected = figma.currentPage.selection;
 
     const isValid = !selected.some(
@@ -97,7 +163,7 @@ function applyGridStyle() {
 
     if (isValid) {
         selected.forEach(node => {
-            return (node.gridStyleId = `S:${gridStyle.key},`);
+            return (node.gridStyleId = `S:${key},`);
         });
     } else {
         alert('Can only apply grids to frames');
@@ -109,28 +175,36 @@ figma.ui.onmessage = msg => {
         collectAssets();
     }
 
-    if (msg.type === 'create') {
-        createInstance();
+    if (msg.type === 'load-styles') {
+        collectStyles();
+    }
+
+    if (msg.type === 'create-instance') {
+        createComponentInstance(msg.payload);
+    }
+
+    if (msg.type === 'go-to-selected') {
+        goToSelectedNode(msg.payload);
     }
 
     if (msg.type === 'apply-text-style') {
-        applyTextStyle();
+        applyTextStyle(msg.payload);
     }
 
     if (msg.type === 'apply-fill-style') {
-        applyFillStyle();
+        applyFillStyle(msg.payload);
     }
 
-    if (msg.type === 'apply-border-style') {
-        applyBorderStyle();
+    if (msg.type === 'apply-stroke-style') {
+        applyStrokeStyle(msg.payload);
     }
 
     if (msg.type === 'apply-effect-style') {
-        applyEffectStyle();
+        applyEffectStyle(msg.payload);
     }
 
     if (msg.type === 'apply-grid-style') {
-        applyGridStyle();
+        applyGridStyle(msg.payload);
     }
 
     // figma.closePlugin();

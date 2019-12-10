@@ -1,17 +1,60 @@
 import * as React from 'react';
 import '../styles/ui.css';
+import FillItem from './listItems/fillItem';
+import StrokeItem from './listItems/strokeItem';
+import TextItem from './listItems/textItem';
+import GenericItem from './listItems/genericItem';
+import EffectIcon from '../icons/effectIcon';
+import GridIcon from '../icons/gridIcon';
 
-const ApplyList = ({assets, value}) => {
-    const [cursor, setCursor] = React.useState(-1);
-    const {colorStyles, textStyles, effectStyles, gridStyles} = assets;
+const ApplyList = ({assets, value, wrapper}) => {
+    const [cursor, setCursor] = React.useState(0);
+
+    const {fillStyles, strokeStyles, textStyles, effectStyles, gridStyles} = assets;
+
+    // React.useEffect(() => {
+    //     // if (wrapper.current) {
+    //     if (wrapper.current) {
+    //         if (cursor === 0) {
+    //             console.log('scrolling to top!');
+    //             window.scrollTo(0, 0);
+    //             return;
+    //         }
+
+    //         // wrapper.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+
+    //         const blockHeight = 40;
+    //         const offset = cursor * blockHeight;
+
+    //         const displayOffset = scrollTop + 100;
+
+    //         if (displayOffset < offset) {
+    //             setScrollTop(scrollTop + blockHeight);
+
+    //             window.scrollTo(0, scrollTop);
+    //         }
+
+    //         if (scrollTop >= offset) {
+    //             setScrollTop(scrollTop - blockHeight);
+
+    //             window.scrollTo(0, scrollTop);
+    //         }
+    //     }
+    // }, [cursor]);
 
     const handleKeyDown = event => {
-        if (event.key === 'ArrowDown' && cursor < maxCursor - 1) {
+        if (event.key === 'ArrowDown' && cursor < maxCursor) {
+            event.preventDefault();
             setCursor(cursor + 1);
         }
 
-        if (event.key === 'ArrowUp' && cursor > -1) {
+        if (event.key === 'ArrowUp' && cursor > 0) {
+            event.preventDefault();
             setCursor(cursor - 1);
+        }
+
+        if (event.key === 'Enter') {
+            handleSubmit();
         }
     };
 
@@ -24,41 +67,30 @@ const ApplyList = ({assets, value}) => {
     }, [handleKeyDown]);
 
     React.useEffect(() => {
-        setCursor(-1);
+        setCursor(0);
     }, [value]);
 
-    const setFontWeight = fontWeight => {
-        switch (fontWeight.toLowerCase()) {
-            case 'ultralight':
-            case 'ultra light':
-            case 'extra light':
-            case 'ultralight beta':
-            case 'ultra light beta':
-            case 'extra light beta':
-            case 'thin':
-                return 100;
-            case 'light':
-                return 300;
-            case 'regular':
-            case 'normal':
-                return 400;
-            case 'medium':
-                return 500;
-            case 'semi bold':
-            case 'semibold':
-            case 'demibold':
-            case 'demi bold':
-                return 600;
-            case 'bold':
-                return 700;
-            case 'heavy':
-            case 'extra bold':
-                return 800;
-            case 'black':
-            case 'ultra bold':
-                return 900;
-            default:
-                return 400;
+    const handleSubmit = () => {
+        const selected = allAssets[cursor];
+
+        if (selected.category === 'fill') {
+            parent.postMessage({pluginMessage: {type: 'apply-fill-style', payload: selected.key}}, '*');
+        }
+
+        if (selected.category === 'stroke') {
+            parent.postMessage({pluginMessage: {type: 'apply-stroke-style', payload: selected.key}}, '*');
+        }
+
+        if (selected.type === 'TEXT') {
+            parent.postMessage({pluginMessage: {type: 'apply-text-style', payload: selected.key}}, '*');
+        }
+
+        if (selected.type === 'EFFECT') {
+            parent.postMessage({pluginMessage: {type: 'apply-effect-style', payload: selected.key}}, '*');
+        }
+
+        if (selected.type === 'GRID') {
+            parent.postMessage({pluginMessage: {type: 'apply-grid-style', payload: selected.key}}, '*');
         }
     };
 
@@ -66,30 +98,46 @@ const ApplyList = ({assets, value}) => {
         return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
     };
 
-    const filteredColorStyles = filterStyles(colorStyles);
+    const filteredFillStyles = filterStyles(fillStyles);
+    const filteredStrokeStyles = filterStyles(strokeStyles);
     const filteredTextStyles = filterStyles(textStyles);
     const filteredEffectStyles = filterStyles(effectStyles);
     const filteredGridStyles = filterStyles(gridStyles);
 
+    const arr = [];
+
+    const allAssets = arr.concat(
+        filteredFillStyles,
+        filteredStrokeStyles,
+        filteredTextStyles,
+        filteredEffectStyles,
+        filteredGridStyles
+    );
+
     const assetTypes = [
         {
-            title: 'Text styles',
-            assets: filteredTextStyles,
+            title: 'Fill styles',
+            type: 'fill',
+            assets: filteredFillStyles,
         },
         {
             title: 'Stroke styles',
-            assets: filteredColorStyles,
+            type: 'stroke',
+            assets: filteredStrokeStyles,
         },
         {
-            title: 'Fill styles',
-            assets: filteredColorStyles,
+            title: 'Text styles',
+            type: 'text',
+            assets: filteredTextStyles,
         },
         {
             title: 'Effect styles',
+            type: 'effect',
             assets: filteredEffectStyles,
         },
         {
             title: 'Grid styles',
+            type: 'grid',
             assets: filteredGridStyles,
         },
     ];
@@ -98,225 +146,97 @@ const ApplyList = ({assets, value}) => {
         return acc + nxt.assets.length;
     }, 0);
 
+    const handleMouseEnter = arg => {
+        // setIsHovering(true);
+        setCursor(arg);
+    };
+
     return (
-        <div>
-            {assetTypes.map(({title, assets}, mainIndex, orgArr) => {
-                const startIndex = orgArr.slice(0, mainIndex).reduce((acc, nxt) => {
+        <div
+            // onScroll={() => onResultScroll()}
+            style={{display: 'flex', flexDirection: 'column', padding: 8, width: '100%', overflow: 'auto'}}
+        >
+            {assetTypes.map(({title, assets, type}, mainIndex, allAssets) => {
+                const startIndex = allAssets.slice(0, mainIndex).reduce((acc, nxt) => {
                     const num = nxt.assets.length;
                     return acc + num;
                 }, 0);
 
                 return (
                     <div key={title} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                        {assets.length > 0 && <p>{title}</p>}
+                        {assets.length > 0 && (
+                            <p style={{padding: '8px 0', color: '#858585'}} className="type type--pos-xlarge-normal">
+                                {title}
+                            </p>
+                        )}
                         {assets.map((item, i) => {
-                            // const color = item.paints[0].color;
+                            const active = startIndex + i === cursor;
 
-                            // const r = Math.floor(255 * color.r);
-                            // const g = Math.floor(255 * color.g);
-                            // const b = Math.floor(255 * color.b);
-                            const selected = startIndex + i === cursor;
-                            return (
-                                <div
-                                    key={i}
-                                    style={{
-                                        background: selected ? 'gray' : 'white',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: 20,
-                                            height: 20,
-                                            borderRadius: '50%',
-                                            // backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                            border: '1px solid #f6f6f6',
-                                            marginRight: 16,
-                                        }}
+                            if (type === 'fill') {
+                                return (
+                                    <FillItem
+                                        key={i}
+                                        item={item}
+                                        submit={() => handleSubmit()}
+                                        active={active}
+                                        onMouseEnter={() => handleMouseEnter(i)}
                                     />
-                                    <p>{item.name}</p>
-                                </div>
-                            );
+                                );
+                            }
+
+                            if (type === 'stroke') {
+                                return (
+                                    <StrokeItem
+                                        key={i}
+                                        item={item}
+                                        submit={() => handleSubmit()}
+                                        active={active}
+                                        onMouseEnter={() => handleMouseEnter(i)}
+                                    />
+                                );
+                            }
+
+                            if (type === 'text') {
+                                return (
+                                    <TextItem
+                                        key={i}
+                                        item={item}
+                                        submit={() => handleSubmit()}
+                                        active={active}
+                                        onMouseEnter={() => handleMouseEnter(i)}
+                                    />
+                                );
+                            }
+
+                            if (type === 'effect') {
+                                return (
+                                    <GenericItem
+                                        key={i}
+                                        item={item}
+                                        submit={() => handleSubmit()}
+                                        active={active}
+                                        onMouseEnter={() => handleMouseEnter(i)}
+                                        icon={<EffectIcon />}
+                                    />
+                                );
+                            }
+
+                            if (type === 'grid') {
+                                return (
+                                    <GenericItem
+                                        key={i}
+                                        item={item}
+                                        submit={() => handleSubmit()}
+                                        active={active}
+                                        onMouseEnter={() => handleMouseEnter(i)}
+                                        icon={<GridIcon />}
+                                    />
+                                );
+                            }
                         })}
                     </div>
                 );
             })}
-            {/* <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <p>Components</p>
-                {components.map((item, i) => {
-                    return (
-                        <div key={i} style={{display: 'flex', alignItems: 'center'}}>
-                            <div
-                                style={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    border: '1px solid #f6f6f6',
-                                    marginRight: 16,
-                                    fontSize: 16,
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    color: '#7b61ff',
-                                }}
-                            >
-                                ❖
-                            </div>
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div> */}
-            {/* 
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                {filteredColorStyles.length > 0 && <p>Fill Styles</p>}
-                {filteredColorStyles.map((item, i) => {
-                    const color = item.paints[0].color;
-
-                    const r = Math.floor(255 * color.r);
-                    const g = Math.floor(255 * color.g);
-                    const b = Math.floor(255 * color.b);
-
-                    return (
-                        <div
-                            key={i}
-                            style={{
-                                background: i === cursor ? 'gray' : 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                    border: '1px solid #f6f6f6',
-                                    marginRight: 16,
-                                }}
-                            />
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                {filteredColorStyles.length > 0 && <p>Border Styles</p>}
-                {filteredColorStyles.map((item, i) => {
-                    const color = item.paints[0].color;
-
-                    const r = Math.floor(255 * color.r);
-                    const g = Math.floor(255 * color.g);
-                    const b = Math.floor(255 * color.b);
-
-                    return (
-                        <div
-                            key={i}
-                            style={{
-                                background: i === cursor ? 'gray' : 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                    border: '1px solid #f6f6f6',
-                                    marginRight: 16,
-                                    fontSize: 16,
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    color: '#fff',
-                                }}
-                            >
-                                ●
-                            </div>
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                {filteredTextStyles.length > 0 && <p>Text Styles</p>}
-                {filteredTextStyles.map((item, i) => {
-                    const fontWeight = setFontWeight(item.fontName.style);
-
-                    return (
-                        <div
-                            key={i}
-                            style={{
-                                background: i === cursor ? 'gray' : 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <p
-                                style={{
-                                    fontFamily: `${item.fontName.family}, Inter`,
-                                    fontWeight: fontWeight,
-                                    fontSize: 14,
-                                    marginRight: 8,
-                                    padding: 0,
-                                }}
-                            >
-                                Ag
-                            </p>
-
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                {filteredEffectStyles.length > 0 && <p>Effect Styles</p>}
-                {filteredEffectStyles.map((item, i) => {
-                    return (
-                        <div
-                            key={i}
-                            style={{
-                                background: i === cursor ? 'gray' : 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                }}
-            >
-                {filteredGridStyles.length > 0 && <p>Grid Styles</p>}
-                {filteredGridStyles.map((item, i) => {
-                    return (
-                        <div
-                            key={i}
-                            style={{
-                                background: i === cursor ? 'gray' : 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <p>{item.name}</p>
-                        </div>
-                    );
-                })}
-            </div> */}
         </div>
     );
 };

@@ -4,6 +4,7 @@ import '../styles/ui.css';
 import Search from './search';
 import ApplyList from './applyList';
 import InsertList from './insertList';
+import GoToList from './goToList';
 
 const App = ({}) => {
     const [isLoading, setLoading] = React.useState(true);
@@ -11,32 +12,10 @@ const App = ({}) => {
     const [value, setValue] = React.useState('');
     const [tabIndex, setTabIndex] = React.useState(0);
 
+    const wrapper = React.useRef(null);
+
     const onLoad = React.useCallback(() => {
         parent.postMessage({pluginMessage: {type: 'onLoad'}}, '*');
-    }, []);
-
-    const onCancel = React.useCallback(() => {
-        parent.postMessage({pluginMessage: {type: 'cancel'}}, '*');
-    }, []);
-
-    const applyBorderStyle = React.useCallback(() => {
-        parent.postMessage({pluginMessage: {type: 'apply-border-style'}}, '*');
-    }, []);
-
-    const applyFillStyle = React.useCallback(() => {
-        parent.postMessage({pluginMessage: {type: 'apply-fill-style'}}, '*');
-    }, []);
-
-    const applyTextStyle = React.useCallback(() => {
-        parent.postMessage({pluginMessage: {type: 'apply-text-style'}}, '*');
-    }, []);
-
-    const applyEffectStyle = React.useCallback(() => {
-        parent.postMessage({pluginMessage: {type: 'apply-effect-style'}}, '*');
-    }, []);
-
-    const applyGridStyle = React.useCallback(() => {
-        parent.postMessage({pluginMessage: {type: 'apply-grid-style'}}, '*');
     }, []);
 
     //check keyboard events
@@ -44,7 +23,7 @@ const App = ({}) => {
         if (event.keyCode === 9) {
             event.preventDefault();
 
-            if (tabIndex === 4) {
+            if (tabIndex === 2) {
                 setTabIndex(0);
             } else {
                 setTabIndex(tabIndex + 1);
@@ -78,23 +57,18 @@ const App = ({}) => {
     return isLoading ? (
         <p>loading</p>
     ) : (
-        <div>
+        <div ref={wrapper}>
             <Search
                 tabIndex={tabIndex}
                 value={value}
                 onChange={e => {
                     setValue(e.target.value);
-                    // setCursor(-1);
                 }}
             />
-            {tabIndex === 0 && <ApplyList assets={assets} value={value} />}
-
-            {tabIndex === 2 && <InsertList assets={assets} value={value} />}
-
-            <button id="create" onClick={applyGridStyle}>
-                Create
-            </button>
-            <button onClick={onCancel}>Cancel</button>
+            <div style={{height: 80}} />
+            {tabIndex === 0 && <InsertList wrapper={wrapper} assets={assets} value={value} />}
+            {tabIndex === 1 && <ApplyList wrapper={wrapper} assets={assets} value={value} />}
+            {tabIndex === 2 && <GoToList wrapper={wrapper} assets={assets} value={value} />}
         </div>
     );
 };
