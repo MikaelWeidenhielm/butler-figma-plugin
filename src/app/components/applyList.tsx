@@ -7,40 +7,39 @@ import GenericItem from './listItems/genericItem';
 import EffectIcon from '../icons/effectIcon';
 import GridIcon from '../icons/gridIcon';
 
-const ApplyList = ({assets, value, wrapper}) => {
+const ApplyList = ({assets, value, wrapper, scrollTop, setScrollTop}) => {
     const [cursor, setCursor] = React.useState(0);
 
     const {fillStyles, strokeStyles, textStyles, effectStyles, gridStyles} = assets;
 
-    // React.useEffect(() => {
-    //     // if (wrapper.current) {
-    //     if (wrapper.current) {
-    //         if (cursor === 0) {
-    //             console.log('scrolling to top!');
-    //             window.scrollTo(0, 0);
-    //             return;
-    //         }
+    React.useEffect(() => {
+        if (wrapper.current) {
+            if (cursor === 0) {
+                console.log('scrolling to top!');
+                window.scrollTo(0, 0);
+                return;
+            }
 
-    //         // wrapper.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+            // wrapper.current.scrollIntoView({behavior: 'smooth', block: 'start'});
 
-    //         const blockHeight = 40;
-    //         const offset = cursor * blockHeight;
+            const blockHeight = 40;
+            const offset = cursor * blockHeight;
 
-    //         const displayOffset = scrollTop + 100;
+            const displayOffset = scrollTop + 100;
 
-    //         if (displayOffset < offset) {
-    //             setScrollTop(scrollTop + blockHeight);
+            if (displayOffset < offset) {
+                setScrollTop(scrollTop + blockHeight);
 
-    //             window.scrollTo(0, scrollTop);
-    //         }
+                window.scrollTo(0, scrollTop);
+            }
 
-    //         if (scrollTop >= offset) {
-    //             setScrollTop(scrollTop - blockHeight);
+            if (scrollTop >= offset) {
+                setScrollTop(scrollTop - blockHeight);
 
-    //             window.scrollTo(0, scrollTop);
-    //         }
-    //     }
-    // }, [cursor]);
+                window.scrollTo(0, scrollTop);
+            }
+        }
+    }, [cursor]);
 
     const handleKeyDown = event => {
         if (event.key === 'ArrowDown' && cursor < maxCursor) {
@@ -146,11 +145,6 @@ const ApplyList = ({assets, value, wrapper}) => {
         return acc + nxt.assets.length;
     }, 0);
 
-    const handleMouseEnter = arg => {
-        // setIsHovering(true);
-        setCursor(arg);
-    };
-
     return (
         <div
             // onScroll={() => onResultScroll()}
@@ -173,39 +167,15 @@ const ApplyList = ({assets, value, wrapper}) => {
                             const active = startIndex + i === cursor;
 
                             if (type === 'fill') {
-                                return (
-                                    <FillItem
-                                        key={i}
-                                        item={item}
-                                        submit={() => handleSubmit()}
-                                        active={active}
-                                        onMouseEnter={() => handleMouseEnter(i)}
-                                    />
-                                );
+                                return <FillItem key={i} item={item} active={active} />;
                             }
 
                             if (type === 'stroke') {
-                                return (
-                                    <StrokeItem
-                                        key={i}
-                                        item={item}
-                                        submit={() => handleSubmit()}
-                                        active={active}
-                                        onMouseEnter={() => handleMouseEnter(i)}
-                                    />
-                                );
+                                return <StrokeItem key={i} item={item} active={active} />;
                             }
 
                             if (type === 'text') {
-                                return (
-                                    <TextItem
-                                        key={i}
-                                        item={item}
-                                        submit={() => handleSubmit()}
-                                        active={active}
-                                        onMouseEnter={() => handleMouseEnter(i)}
-                                    />
-                                );
+                                return <TextItem key={i} item={item} active={active} />;
                             }
 
                             if (type === 'effect') {
@@ -215,7 +185,7 @@ const ApplyList = ({assets, value, wrapper}) => {
                                         item={item}
                                         submit={() => handleSubmit()}
                                         active={active}
-                                        onMouseEnter={() => handleMouseEnter(i)}
+                                        // onMouseEnter={() => handleMouseEnter(i)}
                                         icon={<EffectIcon />}
                                     />
                                 );
@@ -228,7 +198,7 @@ const ApplyList = ({assets, value, wrapper}) => {
                                         item={item}
                                         submit={() => handleSubmit()}
                                         active={active}
-                                        onMouseEnter={() => handleMouseEnter(i)}
+                                        // onMouseEnter={() => handleMouseEnter(i)}
                                         icon={<GridIcon />}
                                     />
                                 );

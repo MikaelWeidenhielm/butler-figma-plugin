@@ -4,7 +4,7 @@ import ColorIcon from '../../icons/colorIcon';
 import GradientIcon from '../../icons/gradientIcon';
 import ImageIcon from '../../icons/imageIcon';
 
-const FillItem = ({item, onMouseEnter, active, submit, i}) => {
+const FillItem = ({item, active, i}) => {
     const paintLength = item.paints.length;
 
     //check how many paints there are
@@ -25,11 +25,17 @@ const FillItem = ({item, onMouseEnter, active, submit, i}) => {
     const g = isSolid && Math.floor(255 * fill.g);
     const b = isSolid && Math.floor(255 * fill.b);
 
+    const handleSubmit = item => {
+        parent.postMessage({pluginMessage: {type: 'apply-fill-style', payload: item.key}}, '*');
+    };
+
     return (
         <div
             key={i}
-            onMouseEnter={onMouseEnter}
-            onClick={submit}
+            onClick={() => {
+                handleSubmit(item);
+            }}
+            className="listItem"
             style={{
                 width: '100%',
                 background: active ? 'rgba(24,145,251, 0.2)' : 'white',

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../../styles/ui.css';
 
-const TextItem = ({item, onMouseEnter, active, submit, i}) => {
+const TextItem = ({item, active, i}) => {
     const setFontWeight = fontWeight => {
         switch (fontWeight.toLowerCase()) {
             case 'ultralight':
@@ -39,11 +39,15 @@ const TextItem = ({item, onMouseEnter, active, submit, i}) => {
 
     const fontWeight = setFontWeight(item.fontName.style);
 
+    const handleSubmit = item => {
+        parent.postMessage({pluginMessage: {type: 'apply-text-style', payload: item.key}}, '*');
+    };
+
     return (
         <div
             key={i}
-            onMouseEnter={onMouseEnter}
-            onClick={submit}
+            className="listItem"
+            onClick={() => handleSubmit(item)}
             style={{
                 width: '100%',
                 background: active ? 'rgba(24,145,251, 0.2)' : '#fff',

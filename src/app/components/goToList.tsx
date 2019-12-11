@@ -151,7 +151,6 @@ const GoToList = ({assets, value, wrapper}) => {
                             }
 
                             if (type === 'frame') {
-                                console.log(item.type);
                                 const getIcon = () => {
                                     switch (item.type) {
                                         case 'FRAME':

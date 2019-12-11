@@ -30,6 +30,11 @@
         url('https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7') format('woff');
 }
 
+.listItem:hover {
+    background-color: rgba(24, 145, 251, 0.2) !important;
+    cursor: pointer;
+}
+
 .label {
     display: -webkit-box;
     display: -ms-flexbox;

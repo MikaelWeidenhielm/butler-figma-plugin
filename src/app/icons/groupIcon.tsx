@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const GroupIcon = props => {
+const GroupIcon = () => {
     return (
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M11 5H9V5.71429H11V5Z" fill="#333333" />

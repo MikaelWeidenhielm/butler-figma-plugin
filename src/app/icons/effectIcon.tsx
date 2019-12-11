@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const EffectIcon = props => {
+const EffectIcon = () => {
     return (
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 3H9V6H10V3Z" fill="#333333" />

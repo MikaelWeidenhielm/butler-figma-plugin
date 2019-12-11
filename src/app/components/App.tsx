@@ -11,6 +11,7 @@ const App = ({}) => {
     const [assets, setAssets] = React.useState([]);
     const [value, setValue] = React.useState('');
     const [tabIndex, setTabIndex] = React.useState(0);
+    const [scrollTop, setScrollTop] = React.useState(0);
 
     const wrapper = React.useRef(null);
 
@@ -67,7 +68,15 @@ const App = ({}) => {
             />
             <div style={{height: 80}} />
             {tabIndex === 0 && <InsertList wrapper={wrapper} assets={assets} value={value} />}
-            {tabIndex === 1 && <ApplyList wrapper={wrapper} assets={assets} value={value} />}
+            {tabIndex === 1 && (
+                <ApplyList
+                    wrapper={wrapper}
+                    assets={assets}
+                    value={value}
+                    scrollTop={scrollTop}
+                    setScrollTop={setScrollTop}
+                />
+            )}
             {tabIndex === 2 && <GoToList wrapper={wrapper} assets={assets} value={value} />}
         </div>
     );

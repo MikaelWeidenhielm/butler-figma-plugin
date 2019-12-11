@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const FrameIcon = props => {
+const FrameIcon = () => {
     return (
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
