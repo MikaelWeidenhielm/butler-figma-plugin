@@ -5,41 +5,36 @@ import ComponentIcon from '../icons/componentIcon';
 
 const InsertList = ({assets, value, wrapper}) => {
     const [cursor, setCursor] = React.useState(0);
-    // const [isHovering, setIsHovering] = React.useState(false);
 
-    // const [scrollTop, setScrollTop] = React.useState(0);
+    const [scrollTop, setScrollTop] = React.useState(0);
 
     const {components} = assets;
 
-    // React.useEffect(() => {
-    //     // if (wrapper.current) {
-    //     if (wrapper.current) {
-    //         if (cursor === 0) {
-    //             console.log('scrolling to top!');
-    //             window.scrollTo(0, 0);
-    //             return;
-    //         }
+    React.useEffect(() => {
+        if (wrapper.current) {
+            if (cursor === 0) {
+                window.scrollTo(0, 0);
+                return;
+            }
 
-    //         // wrapper.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+            const blockHeight = 36;
+            const offset = cursor * blockHeight;
 
-    //         const blockHeight = 40;
-    //         const offset = cursor * blockHeight;
+            const displayOffset = scrollTop + blockHeight;
 
-    //         const displayOffset = scrollTop + 100;
+            if (displayOffset < offset) {
+                setScrollTop(scrollTop + blockHeight);
 
-    //         if (displayOffset < offset) {
-    //             setScrollTop(scrollTop + blockHeight);
+                window.scrollTo(0, scrollTop);
+            }
 
-    //             window.scrollTo(0, scrollTop);
-    //         }
+            if (scrollTop >= offset) {
+                setScrollTop(scrollTop - blockHeight);
 
-    //         if (scrollTop >= offset) {
-    //             setScrollTop(scrollTop - blockHeight);
-
-    //             window.scrollTo(0, scrollTop);
-    //         }
-    //     }
-    // }, [cursor]);
+                window.scrollTo(0, scrollTop);
+            }
+        }
+    }, [cursor]);
 
     const handleKeyDown = event => {
         if (event.key === 'ArrowDown' && cursor < maxCursor) {
@@ -95,11 +90,6 @@ const InsertList = ({assets, value, wrapper}) => {
         return acc + nxt.assets.length;
     }, 0);
 
-    const handleMouseEnter = arg => {
-        // setIsHovering(true);
-        setCursor(arg);
-    };
-
     return (
         <div style={{display: 'flex', flexDirection: 'column', padding: 8, width: '100%', overflow: 'auto'}}>
             {assetTypes.map(({title, assets, type}, mainIndex, allAssets) => {
@@ -119,16 +109,7 @@ const InsertList = ({assets, value, wrapper}) => {
                             const active = startIndex + i === cursor;
 
                             if (type === 'component') {
-                                return (
-                                    <GenericItem
-                                        key={i}
-                                        item={item}
-                                        submit={() => handleSubmit()}
-                                        active={active}
-                                        onMouseEnter={() => handleMouseEnter(i)}
-                                        icon={<ComponentIcon />}
-                                    />
-                                );
+                                return <GenericItem key={i} item={item} active={active} icon={<ComponentIcon />} />;
                             }
                         })}
                     </div>

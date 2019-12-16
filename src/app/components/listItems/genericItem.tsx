@@ -1,12 +1,32 @@
 import * as React from 'react';
 import '../../styles/ui.css';
 
-const GenericItem = ({item, onMouseEnter, active, submit, i, icon}) => {
+const GenericItem = ({item, active, i, icon}) => {
+    const handleSubmit = item => {
+        console.log(item);
+        if (item.type === 'EFFECT') {
+            parent.postMessage({pluginMessage: {type: 'apply-effect-style', payload: item.key}}, '*');
+        }
+
+        if (item.type === 'GRID') {
+            parent.postMessage({pluginMessage: {type: 'apply-grid-style', payload: item.key}}, '*');
+        }
+
+        if (item.category === 'navigation') {
+            parent.postMessage({pluginMessage: {type: 'go-to-selected', payload: item}}, '*');
+        }
+
+        if (item.category === 'insert') {
+            parent.postMessage({pluginMessage: {type: 'create-instance', payload: item}}, '*');
+        }
+    };
     return (
         <div
             key={i}
-            onMouseEnter={onMouseEnter}
-            onClick={submit}
+            onClick={() => {
+                handleSubmit(item);
+            }}
+            className="listItem"
             style={{
                 width: '100%',
                 background: active ? 'rgba(24,145,251, 0.2)' : '#fff',

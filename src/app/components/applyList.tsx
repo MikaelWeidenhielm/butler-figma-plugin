@@ -7,25 +7,42 @@ import GenericItem from './listItems/genericItem';
 import EffectIcon from '../icons/effectIcon';
 import GridIcon from '../icons/gridIcon';
 
-const ApplyList = ({assets, value, wrapper, scrollTop, setScrollTop}) => {
+const ApplyList = ({assets, value, wrapper}) => {
     const [cursor, setCursor] = React.useState(0);
+    const [scrollTop, setScrollTop] = React.useState(0);
+
+    const [error, setError] = React.useState(false);
+    const [errorMsg, setErrorMsg] = React.useState('');
 
     const {fillStyles, strokeStyles, textStyles, effectStyles, gridStyles} = assets;
 
     React.useEffect(() => {
+        window.onmessage = event => {
+            const {type, message} = event.data.pluginMessage;
+            if (type === 'error') {
+                const timer = setTimeout(() => {
+                    setError(false);
+                }, 4000);
+
+                setError(true);
+                setErrorMsg(message);
+
+                return () => clearTimeout(timer);
+            }
+        };
+    }, []);
+
+    React.useEffect(() => {
         if (wrapper.current) {
             if (cursor === 0) {
-                console.log('scrolling to top!');
                 window.scrollTo(0, 0);
                 return;
             }
 
-            // wrapper.current.scrollIntoView({behavior: 'smooth', block: 'start'});
-
-            const blockHeight = 40;
+            const blockHeight = 36;
             const offset = cursor * blockHeight;
 
-            const displayOffset = scrollTop + 100;
+            const displayOffset = scrollTop + blockHeight;
 
             if (displayOffset < offset) {
                 setScrollTop(scrollTop + blockHeight);
@@ -159,7 +176,7 @@ const ApplyList = ({assets, value, wrapper, scrollTop, setScrollTop}) => {
                 return (
                     <div key={title} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
                         {assets.length > 0 && (
-                            <p style={{padding: '8px 0', color: '#858585'}} className="type type--pos-xlarge-normal">
+                            <p style={{padding: 8, color: '#858585'}} className="type type--pos-xlarge-normal">
                                 {title}
                             </p>
                         )}
@@ -179,34 +196,24 @@ const ApplyList = ({assets, value, wrapper, scrollTop, setScrollTop}) => {
                             }
 
                             if (type === 'effect') {
-                                return (
-                                    <GenericItem
-                                        key={i}
-                                        item={item}
-                                        submit={() => handleSubmit()}
-                                        active={active}
-                                        // onMouseEnter={() => handleMouseEnter(i)}
-                                        icon={<EffectIcon />}
-                                    />
-                                );
+                                return <GenericItem key={i} item={item} active={active} icon={<EffectIcon />} />;
                             }
 
                             if (type === 'grid') {
-                                return (
-                                    <GenericItem
-                                        key={i}
-                                        item={item}
-                                        submit={() => handleSubmit()}
-                                        active={active}
-                                        // onMouseEnter={() => handleMouseEnter(i)}
-                                        icon={<GridIcon />}
-                                    />
-                                );
+                                return <GenericItem key={i} item={item} active={active} icon={<GridIcon />} />;
                             }
                         })}
                     </div>
                 );
             })}
+
+            {error && (
+                <div className="position--bottom visual-bell visual-bell--error">
+                    <span style={{color: '#fff'}} className="visual-bell__msg">
+                        {errorMsg}
+                    </span>
+                </div>
+            )}
         </div>
     );
 };

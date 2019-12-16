@@ -1,4 +1,4 @@
-figma.showUI(__html__, {width: 600, height: 350});
+figma.showUI(__html__, {width: 600, height: 300});
 
 const assets = {
     components: [],
@@ -43,6 +43,7 @@ function collectComponents() {
             type: node.type,
             description: node.description,
             page: figma.currentPage.name,
+            category: 'insert',
         }));
 
     assets.components = components;
@@ -57,6 +58,7 @@ function collectFrames() {
                       name: f.name,
                       type: f.type,
                       page: p.name,
+                      category: 'navigation',
                   }))
                 : null
         )
@@ -72,6 +74,7 @@ function collectPages() {
         id: p.id,
         name: p.name,
         type: p.type,
+        category: 'navigation',
     }));
 
     assets.pages = pages;
@@ -129,15 +132,19 @@ function applyTextStyle(key) {
     const selected = figma.currentPage.selection;
     const isText = !selected.some(node => node.type !== 'TEXT');
 
+    selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
+
     if (isText) {
         selected.forEach(node => (node.textStyleId = `S:${key},`));
     } else {
-        alert('Can only apply textstyles when text is selected');
+        figma.ui.postMessage({type: 'error', message: 'Can only apply text styles when text is selected'});
     }
 }
 
 function applyFillStyle(key) {
     const selected = figma.currentPage.selection;
+
+    selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
 
     selected.forEach(node => (node.fillStyleId = `S:${key},`));
 }
@@ -145,11 +152,15 @@ function applyFillStyle(key) {
 function applyStrokeStyle(key) {
     const selected = figma.currentPage.selection;
 
+    selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
+
     selected.forEach(node => (node.strokeStyleId = `S:${key},`));
 }
 
 function applyEffectStyle(key) {
     const selected = figma.currentPage.selection;
+
+    selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
 
     selected.forEach(node => (node.effectStyleId = `S:${key},`));
 }
@@ -161,22 +172,20 @@ function applyGridStyle(key) {
         node => !(node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE')
     );
 
+    selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
+
     if (isValid) {
         selected.forEach(node => {
             return (node.gridStyleId = `S:${key},`);
         });
     } else {
-        alert('Can only apply grids to frames');
+        figma.ui.postMessage({type: 'error', message: 'Grids can only be applied to frames'});
     }
 }
 
 figma.ui.onmessage = msg => {
     if (msg.type === 'onLoad') {
         collectAssets();
-    }
-
-    if (msg.type === 'load-styles') {
-        collectStyles();
     }
 
     if (msg.type === 'create-instance') {

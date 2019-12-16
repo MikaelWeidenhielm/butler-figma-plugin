@@ -5,13 +5,13 @@ import Search from './search';
 import ApplyList from './applyList';
 import InsertList from './insertList';
 import GoToList from './goToList';
+import SkeletonLoader from './skeletonLoader';
 
 const App = ({}) => {
     const [isLoading, setLoading] = React.useState(true);
     const [assets, setAssets] = React.useState([]);
     const [value, setValue] = React.useState('');
     const [tabIndex, setTabIndex] = React.useState(0);
-    const [scrollTop, setScrollTop] = React.useState(0);
 
     const wrapper = React.useRef(null);
 
@@ -56,7 +56,7 @@ const App = ({}) => {
     }, []);
 
     return isLoading ? (
-        <p>loading</p>
+        <SkeletonLoader />
     ) : (
         <div ref={wrapper}>
             <Search
@@ -66,17 +66,10 @@ const App = ({}) => {
                     setValue(e.target.value);
                 }}
             />
-            <div style={{height: 80}} />
+
+            <div style={{height: 70}} />
             {tabIndex === 0 && <InsertList wrapper={wrapper} assets={assets} value={value} />}
-            {tabIndex === 1 && (
-                <ApplyList
-                    wrapper={wrapper}
-                    assets={assets}
-                    value={value}
-                    scrollTop={scrollTop}
-                    setScrollTop={setScrollTop}
-                />
-            )}
+            {tabIndex === 1 && <ApplyList wrapper={wrapper} assets={assets} value={value} />}
             {tabIndex === 2 && <GoToList wrapper={wrapper} assets={assets} value={value} />}
         </div>
     );

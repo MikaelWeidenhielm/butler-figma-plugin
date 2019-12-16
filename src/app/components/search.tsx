@@ -5,9 +5,9 @@ const Search = ({tabIndex, onChange, value}) => {
     const commands = ['Insert', 'Apply', 'Go to'];
 
     const placeholder = [
-        'Insert components or other shapes',
-        'Apply colors, text-styles or grids',
-        'Navigate to your favorite node',
+        'Search & insert local components',
+        'Search & apply local styles',
+        'Search & navigate to a node',
     ];
 
     return (

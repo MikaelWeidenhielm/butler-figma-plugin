@@ -30,9 +30,72 @@
         url('https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7') format('woff');
 }
 
+.spinner {
+    width: 24px;
+    height: 24px;
+
+    position: relative;
+    margin: 100px auto;
+}
+
+.double-bounce1,
+.double-bounce2 {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #333;
+    opacity: 0.3;
+    position: absolute;
+    top: -15;
+    left: 0;
+
+    -webkit-animation: sk-bounce 2s infinite ease-in-out;
+    animation: sk-bounce 2s infinite ease-in-out;
+}
+
+.double-bounce2 {
+    -webkit-animation-delay: -1s;
+    animation-delay: -1s;
+}
+
+@-webkit-keyframes sk-bounce {
+    0%,
+    100% {
+        -webkit-transform: scale(0);
+    }
+    50% {
+        -webkit-transform: scale(1);
+    }
+}
+
+@keyframes sk-bounce {
+    0%,
+    100% {
+        transform: scale(0);
+        -webkit-transform: scale(0);
+    }
+    50% {
+        transform: scale(1);
+        -webkit-transform: scale(1);
+    }
+}
+
 .listItem:hover {
     background-color: rgba(24, 145, 251, 0.2) !important;
     cursor: pointer;
+}
+
+.hover-link {
+    color: #858585;
+}
+
+.hover-link:hover {
+    color: #333;
+}
+
+.position--bottom {
+    position: fixed;
+    bottom: 8px;
 }
 
 .label {
@@ -322,6 +385,26 @@
     background-color: rgba(0, 0, 0, 0.8);
 }
 
+.button--skeleton {
+    display: inline-block;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    height: 30px;
+    margin: 1px 0 1px 0;
+    text-decoration: none;
+    border: 4px solid transparent;
+    border-radius: 6px;
+    outline: none;
+    width: 64px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.005em;
+    color: #ffffff;
+    background-color: #f1f1f1;
+}
+
 .button--primary {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
@@ -426,6 +509,31 @@
     border-radius: 4px;
     outline: none;
     background-color: #ffffff;
+}
+
+.input-skeleton {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.005em;
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    overflow: visible;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    width: 100%;
+    height: 30px;
+    margin: 1px 0 1px 0;
+    padding: 8px 4px 8px 7px;
+    color: rgba(0, 0, 0, 0.8);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    outline: none;
+    background-color: #f1f1f1;
 }
 
 .input:hover {
@@ -1049,7 +1157,7 @@
     align-self: flex-start;
     -ms-flex-negative: 1;
     flex-shrink: 1;
-    width: 100%;
+    width: 584px;
     height: 36px;
     padding: 0 16px 0 16px;
     -webkit-transition: all 0.3s ease-out;
@@ -1057,8 +1165,9 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     background-color: #222222;
-    -webkit-box-shadow: 0 5px 17px rgba(0, 0, 0, 0.2), 0 2px 7px rgba(0, 0, 0, 0.15);
-    box-shadow: 0 5px 17px rgba(0, 0, 0, 0.2), 0 2px 7px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04),
+        0px 10px 20px rgba(0, 0, 0, 0.04);
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 10px 20px rgba(0, 0, 0, 0.04);
 }
 
 .visual-bell__msg {
