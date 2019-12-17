@@ -72,11 +72,35 @@ const InsertList = ({assets, value, wrapper}) => {
         }
     };
 
-    const filterStyles = style => {
-        return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
-    };
+    function filterStyles(q, style) {
+        function escapeRegExp(s) {
+            return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        }
+        const words = q
+            .split(/\s+/g)
+            .map(s => s.trim())
+            .filter(s => !!s);
+        const hasTrailingSpace = q.endsWith(' ');
+        const searchRegex = new RegExp(
+            words
+                .map((word, i) => {
+                    if (i + 1 === words.length && !hasTrailingSpace) {
+                        // The last word - ok with the word being "startswith"-like
+                        return `(?=.*\\b${escapeRegExp(word)})`;
+                    } else {
+                        // Not the last word - expect the whole word exactly
+                        return `(?=.*\\b${escapeRegExp(word)}\\b)`;
+                    }
+                })
+                .join('') + '.+',
+            'gi'
+        );
+        return style.filter(item => {
+            return searchRegex.test(item.name);
+        });
+    }
 
-    const filteredComponents = filterStyles(components);
+    const filteredComponents = filterStyles(value, components);
 
     const assetTypes = [
         {

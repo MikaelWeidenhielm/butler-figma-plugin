@@ -6,7 +6,7 @@ const Search = ({tabIndex, onChange, value}) => {
 
     const placeholder = [
         'Search & insert local components',
-        'Search & apply local styles',
+        'Search & apply local styles to selection',
         'Search & navigate to a node',
     ];
 

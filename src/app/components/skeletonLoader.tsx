@@ -73,6 +73,9 @@ const SkeletonLoader = () => {
                 <div className="double-bounce1"></div>
                 <div className="double-bounce2"></div>
             </div>
+            <div className="loading-text-wrapper">
+                <p className="loading-text type type--pos-small-bold">Loading assets...</p>
+            </div>
         </div>
     );
 };

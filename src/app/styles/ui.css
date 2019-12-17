@@ -30,6 +30,17 @@
         url('https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7') format('woff');
 }
 
+.loading-text-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+.loading-text {
+    position: absolute;
+    bottom: 80;
+}
+
 .spinner {
     width: 24px;
     height: 24px;
@@ -46,7 +57,7 @@
     background-color: #333;
     opacity: 0.3;
     position: absolute;
-    top: -15;
+    top: -10;
     left: 0;
 
     -webkit-animation: sk-bounce 2s infinite ease-in-out;
