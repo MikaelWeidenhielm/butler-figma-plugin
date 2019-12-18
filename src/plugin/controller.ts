@@ -41,6 +41,7 @@ function collectComponents() {
             id: node.id,
             name: node.name,
             type: node.type,
+            // @ts-ignore
             description: node.description,
             page: figma.currentPage.name,
             category: 'insert',
@@ -135,6 +136,7 @@ function applyTextStyle(key) {
     selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
 
     if (isText) {
+        // @ts-ignore
         selected.forEach(node => (node.textStyleId = `S:${key},`));
     } else {
         figma.ui.postMessage({type: 'error', message: 'Can only apply text styles when text is selected'});
@@ -145,7 +147,7 @@ function applyFillStyle(key) {
     const selected = figma.currentPage.selection;
 
     selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
-
+    // @ts-ignore
     selected.forEach(node => (node.fillStyleId = `S:${key},`));
 }
 
@@ -153,7 +155,7 @@ function applyStrokeStyle(key) {
     const selected = figma.currentPage.selection;
 
     selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
-
+    // @ts-ignore
     selected.forEach(node => (node.strokeStyleId = `S:${key},`));
 }
 
@@ -161,7 +163,7 @@ function applyEffectStyle(key) {
     const selected = figma.currentPage.selection;
 
     selected.length === 0 && figma.ui.postMessage({type: 'error', message: 'Select a layer to apply a style'});
-
+    // @ts-ignore
     selected.forEach(node => (node.effectStyleId = `S:${key},`));
 }
 
@@ -176,6 +178,7 @@ function applyGridStyle(key) {
 
     if (isValid) {
         selected.forEach(node => {
+            // @ts-ignore
             return (node.gridStyleId = `S:${key},`);
         });
     } else {

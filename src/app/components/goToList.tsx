@@ -128,7 +128,7 @@ const GoToList = ({assets, value, wrapper}) => {
                             const active = startIndex + i === cursor;
 
                             if (type === 'page') {
-                                return <GenericItem key={i} item={item} active={active} icon={<PageIcon />} />;
+                                return <GenericItem i={i} item={item} active={active} icon={<PageIcon />} />;
                             }
 
                             if (type === 'frame') {
@@ -163,7 +163,7 @@ const GoToList = ({assets, value, wrapper}) => {
 
                                 const icon = getIcon();
 
-                                return <GenericItem key={i} item={item} active={active} icon={icon} />;
+                                return <GenericItem i={i} item={item} active={active} icon={icon} />;
                             }
                         })}
                     </div>

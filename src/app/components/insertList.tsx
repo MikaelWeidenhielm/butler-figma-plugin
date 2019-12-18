@@ -133,7 +133,7 @@ const InsertList = ({assets, value, wrapper}) => {
                             const active = startIndex + i === cursor;
 
                             if (type === 'component') {
-                                return <GenericItem key={i} item={item} active={active} icon={<ComponentIcon />} />;
+                                return <GenericItem i={i} item={item} active={active} icon={<ComponentIcon />} />;
                             }
                         })}
                     </div>

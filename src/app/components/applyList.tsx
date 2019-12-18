@@ -209,23 +209,23 @@ const ApplyList = ({assets, value, wrapper}) => {
                             const active = startIndex + i === cursor;
 
                             if (type === 'fill') {
-                                return <FillItem key={i} item={item} active={active} />;
+                                return <FillItem i={i} item={item} active={active} />;
                             }
 
                             if (type === 'stroke') {
-                                return <StrokeItem key={i} item={item} active={active} />;
+                                return <StrokeItem i={i} item={item} active={active} />;
                             }
 
                             if (type === 'text') {
-                                return <TextItem key={i} item={item} active={active} />;
+                                return <TextItem i={i} item={item} active={active} />;
                             }
 
                             if (type === 'effect') {
-                                return <GenericItem key={i} item={item} active={active} icon={<EffectIcon />} />;
+                                return <GenericItem i={i} item={item} active={active} icon={<EffectIcon />} />;
                             }
 
                             if (type === 'grid') {
-                                return <GenericItem key={i} item={item} active={active} icon={<GridIcon />} />;
+                                return <GenericItem i={i} item={item} active={active} icon={<GridIcon />} />;
                             }
                         })}
                     </div>
