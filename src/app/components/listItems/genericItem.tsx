@@ -3,7 +3,6 @@ import '../../styles/ui.css';
 
 const GenericItem = ({item, active, i, icon}) => {
     const handleSubmit = item => {
-        console.log(item);
         if (item.type === 'EFFECT') {
             parent.postMessage({pluginMessage: {type: 'apply-effect-style', payload: item.key}}, '*');
         }

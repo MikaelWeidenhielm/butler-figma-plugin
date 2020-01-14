@@ -110,43 +110,43 @@ const ApplyList = ({assets, value, wrapper}) => {
         }
     };
 
-    // const filterStyles = style => {
-    //     return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
-    // };
+    const filterStyles = style => {
+        return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
+    };
 
-    function filterStyles(q, style) {
-        function escapeRegExp(s) {
-            return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        }
-        const words = q
-            .split(/\s+/g)
-            .map(s => s.trim())
-            .filter(s => !!s);
-        const hasTrailingSpace = q.endsWith(' ');
-        const searchRegex = new RegExp(
-            words
-                .map((word, i) => {
-                    if (i + 1 === words.length && !hasTrailingSpace) {
-                        // The last word - ok with the word being "startswith"-like
-                        return `(?=.*\\b${escapeRegExp(word)})`;
-                    } else {
-                        // Not the last word - expect the whole word exactly
-                        return `(?=.*\\b${escapeRegExp(word)}\\b)`;
-                    }
-                })
-                .join('') + '.+',
-            'gi'
-        );
-        return style.filter(item => {
-            return searchRegex.test(item.name);
-        });
-    }
+    // function filterStyles(q, style) {
+    //     function escapeRegExp(s) {
+    //         return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    //     }
+    //     const words = q
+    //         .split(/\s+/g)
+    //         .map(s => s.trim())
+    //         .filter(s => !!s);
+    //     const hasTrailingSpace = q.endsWith(' ');
+    //     const searchRegex = new RegExp(
+    //         words
+    //             .map((word, i) => {
+    //                 if (i + 1 === words.length && !hasTrailingSpace) {
+    //                     // The last word - ok with the word being "startswith"-like
+    //                     return `(?=.*\\b${escapeRegExp(word)})`;
+    //                 } else {
+    //                     // Not the last word - expect the whole word exactly
+    //                     return `(?=.*\\b${escapeRegExp(word)}\\b)`;
+    //                 }
+    //             })
+    //             .join('') + '.+',
+    //         'gi'
+    //     );
+    //     return style.filter(item => {
+    //         return searchRegex.test(item.name);
+    //     });
+    // }
 
-    const filteredFillStyles = filterStyles(value, fillStyles);
-    const filteredStrokeStyles = filterStyles(value, strokeStyles);
-    const filteredTextStyles = filterStyles(value, textStyles);
-    const filteredEffectStyles = filterStyles(value, effectStyles);
-    const filteredGridStyles = filterStyles(value, gridStyles);
+    const filteredFillStyles = filterStyles(fillStyles);
+    const filteredStrokeStyles = filterStyles(strokeStyles);
+    const filteredTextStyles = filterStyles(textStyles);
+    const filteredEffectStyles = filterStyles(effectStyles);
+    const filteredGridStyles = filterStyles(gridStyles);
 
     const arr = [];
 
@@ -199,7 +199,7 @@ const ApplyList = ({assets, value, wrapper}) => {
                 }, 0);
 
                 return (
-                    <div key={title} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+                    <div key={mainIndex} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
                         {assets.length > 0 && (
                             <p style={{padding: 8, color: '#858585'}} className="type type--pos-xlarge-normal">
                                 {title}
