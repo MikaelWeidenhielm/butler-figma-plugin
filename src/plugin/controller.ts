@@ -187,6 +187,10 @@ function applyGridStyle(key) {
 }
 
 figma.ui.onmessage = msg => {
+    if (msg.type === 'close') {
+        figma.closePlugin();
+    }
+
     if (msg.type === 'onLoad') {
         collectAssets();
     }

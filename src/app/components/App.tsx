@@ -12,6 +12,8 @@ const App = ({}) => {
     const [assets, setAssets] = React.useState([]);
     const [value, setValue] = React.useState('');
     const [tabIndex, setTabIndex] = React.useState(0);
+    const [badgeActive, setBadgeActive] = React.useState(false);
+    const [badgeType, setBadgeType] = React.useState('');
 
     const wrapper = React.useRef(null);
 
@@ -21,6 +23,10 @@ const App = ({}) => {
 
     //check keyboard events
     const handleKeyDown = event => {
+        if (event.key === 'Escape') {
+            parent.postMessage({pluginMessage: {type: 'close'}}, '*');
+        }
+
         if (event.keyCode === 9) {
             event.preventDefault();
 
@@ -29,6 +35,10 @@ const App = ({}) => {
             } else {
                 setTabIndex(tabIndex + 1);
             }
+        }
+
+        if (event.keyCode === 8 && value === '') {
+            setBadgeActive(false);
         }
     };
 
@@ -55,21 +65,39 @@ const App = ({}) => {
         };
     }, []);
 
+    React.useEffect(() => {
+        if (badgeActive) {
+            setValue('');
+        }
+    }, [badgeActive]);
+
     return isLoading ? (
         <SkeletonLoader />
     ) : (
         <div ref={wrapper}>
             <Search
+                badgeActive={badgeActive}
                 tabIndex={tabIndex}
                 value={value}
                 onChange={e => {
                     setValue(e.target.value);
                 }}
+                badgeType={badgeType}
             />
 
             <div style={{height: 70}} />
             {tabIndex === 0 && <InsertList wrapper={wrapper} assets={assets} value={value} />}
-            {tabIndex === 1 && <ApplyList wrapper={wrapper} assets={assets} value={value} />}
+            {tabIndex === 1 && (
+                <ApplyList
+                    wrapper={wrapper}
+                    assets={assets}
+                    value={value}
+                    setBadgeActive={setBadgeActive}
+                    badgeActive={badgeActive}
+                    badgeType={badgeType}
+                    setBadgeType={setBadgeType}
+                />
+            )}
             {tabIndex === 2 && <GoToList wrapper={wrapper} assets={assets} value={value} />}
         </div>
     );

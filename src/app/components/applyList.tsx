@@ -7,12 +7,14 @@ import GenericItem from './listItems/genericItem';
 import EffectIcon from '../icons/effectIcon';
 import GridIcon from '../icons/gridIcon';
 
-const ApplyList = ({assets, value, wrapper}) => {
+const ApplyList = ({assets, value, wrapper, setBadgeActive, badgeActive, badgeType, setBadgeType}) => {
     const [cursor, setCursor] = React.useState(0);
     const [scrollTop, setScrollTop] = React.useState(0);
 
     const [error, setError] = React.useState(false);
     const [errorMsg, setErrorMsg] = React.useState('');
+
+    const [filterTypes, setFilterTypes] = React.useState(false);
 
     const {fillStyles, strokeStyles, textStyles, effectStyles, gridStyles} = assets;
 
@@ -64,15 +66,36 @@ const ApplyList = ({assets, value, wrapper}) => {
             setCursor(cursor + 1);
         }
 
+        if (filterTypes && event.key === 'ArrowDown' && cursor < assetTypes.length - 1) {
+            event.preventDefault();
+            setCursor(cursor + 1);
+        }
+
         if (event.key === 'ArrowUp' && cursor > 0) {
             event.preventDefault();
             setCursor(cursor - 1);
         }
 
-        if (event.key === 'Enter') {
+        if (filterTypes && event.key === 'Enter') {
+            const selected = filteredStupidTypes[cursor];
+
+            setBadgeType(selected.type.substr(1));
+
+            setBadgeActive(true);
+        }
+
+        if (!filterTypes && event.key === 'Enter') {
             handleSubmit();
         }
     };
+
+    React.useEffect(() => {
+        if (value.startsWith('/') && !badgeActive) {
+            setFilterTypes(true);
+        } else {
+            setFilterTypes(false);
+        }
+    }, [value]);
 
     React.useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -114,34 +137,6 @@ const ApplyList = ({assets, value, wrapper}) => {
         return style.filter(asset => asset.name.toLowerCase().includes(value.toLocaleLowerCase()));
     };
 
-    // function filterStyles(q, style) {
-    //     function escapeRegExp(s) {
-    //         return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-    //     }
-    //     const words = q
-    //         .split(/\s+/g)
-    //         .map(s => s.trim())
-    //         .filter(s => !!s);
-    //     const hasTrailingSpace = q.endsWith(' ');
-    //     const searchRegex = new RegExp(
-    //         words
-    //             .map((word, i) => {
-    //                 if (i + 1 === words.length && !hasTrailingSpace) {
-    //                     // The last word - ok with the word being "startswith"-like
-    //                     return `(?=.*\\b${escapeRegExp(word)})`;
-    //                 } else {
-    //                     // Not the last word - expect the whole word exactly
-    //                     return `(?=.*\\b${escapeRegExp(word)}\\b)`;
-    //                 }
-    //             })
-    //             .join('') + '.+',
-    //         'gi'
-    //     );
-    //     return style.filter(item => {
-    //         return searchRegex.test(item.name);
-    //     });
-    // }
-
     const filteredFillStyles = filterStyles(fillStyles);
     const filteredStrokeStyles = filterStyles(strokeStyles);
     const filteredTextStyles = filterStyles(textStyles);
@@ -157,6 +152,35 @@ const ApplyList = ({assets, value, wrapper}) => {
         filteredEffectStyles,
         filteredGridStyles
     );
+
+    const stupidTypes = [
+        {
+            type: '/Fills',
+            assets: fillStyles,
+        },
+        {
+            type: '/Strokes',
+            assets: strokeStyles,
+        },
+        {
+            type: '/Texts',
+            assets: textStyles,
+        },
+        {
+            type: '/Effects',
+            assets: effectStyles,
+        },
+        {
+            type: '/Grids',
+            assets: gridStyles,
+        },
+    ];
+
+    const filteredTypes = type => {
+        return type.filter(type => type.type.toLowerCase().includes(value.toLocaleLowerCase()));
+    };
+
+    const filteredStupidTypes = filteredTypes(stupidTypes);
 
     const assetTypes = [
         {
@@ -192,45 +216,71 @@ const ApplyList = ({assets, value, wrapper}) => {
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', padding: 8, width: '100%', overflow: 'auto'}}>
-            {assetTypes.map(({title, assets, type}, mainIndex, allAssets) => {
-                const startIndex = allAssets.slice(0, mainIndex).reduce((acc, nxt) => {
-                    const num = nxt.assets.length;
-                    return acc + num;
-                }, 0);
+            {filterTypes &&
+                !badgeActive &&
+                filteredStupidTypes.map((asset, i) => {
+                    const active = 0 + i === cursor;
 
-                return (
-                    <div key={mainIndex} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                        {assets.length > 0 && (
-                            <p style={{padding: 8, color: '#858585'}} className="type type--pos-xlarge-normal">
-                                {title}
+                    const assetType = asset.type.substr(1);
+
+                    if (asset.assets.length > 0) {
+                        return (
+                            <p
+                                style={{
+                                    padding: 4,
+                                    color: '#000',
+                                    background: active ? 'rgba(24,145,251, 0.2)' : 'white',
+                                }}
+                                className="type type--pos-xlarge-normal"
+                            >
+                                {assetType}
                             </p>
-                        )}
-                        {assets.map((item, i) => {
-                            const active = startIndex + i === cursor;
+                        );
+                    }
+                })}
+            {!filterTypes &&
+                assetTypes.map(({title, assets, type}, mainIndex, allAssets) => {
+                    const startIndex = allAssets.slice(0, mainIndex).reduce((acc, nxt) => {
+                        const num = nxt.assets.length;
+                        return acc + num;
+                    }, 0);
 
-                            if (type === 'fill') {
-                                return <FillItem i={i} item={item} active={active} />;
-                            }
+                    return (
+                        <div
+                            key={mainIndex}
+                            style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
+                        >
+                            {assets.length > 0 && (
+                                <p style={{padding: 8, color: '#000'}} className="type type--pos-xlarge-normal">
+                                    {title}
+                                </p>
+                            )}
+                            {assets.map((item, i) => {
+                                const active = startIndex + i === cursor;
 
-                            if (type === 'stroke') {
-                                return <StrokeItem i={i} item={item} active={active} />;
-                            }
+                                if (type === 'fill') {
+                                    return <FillItem i={i} item={item} active={active} />;
+                                }
 
-                            if (type === 'text') {
-                                return <TextItem i={i} item={item} active={active} />;
-                            }
+                                if (type === 'stroke') {
+                                    return <StrokeItem i={i} item={item} active={active} />;
+                                }
 
-                            if (type === 'effect') {
-                                return <GenericItem i={i} item={item} active={active} icon={<EffectIcon />} />;
-                            }
+                                if (type === 'text') {
+                                    return <TextItem i={i} item={item} active={active} />;
+                                }
 
-                            if (type === 'grid') {
-                                return <GenericItem i={i} item={item} active={active} icon={<GridIcon />} />;
-                            }
-                        })}
-                    </div>
-                );
-            })}
+                                if (type === 'effect') {
+                                    return <GenericItem i={i} item={item} active={active} icon={<EffectIcon />} />;
+                                }
+
+                                if (type === 'grid') {
+                                    return <GenericItem i={i} item={item} active={active} icon={<GridIcon />} />;
+                                }
+                            })}
+                        </div>
+                    );
+                })}
 
             {error && (
                 <div className="position--bottom visual-bell visual-bell--error">

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../styles/ui.css';
 
-const Search = ({tabIndex, onChange, value}) => {
+const Search = ({tabIndex, onChange, value, badgeActive, badgeType}) => {
     const commands = ['Insert', 'Apply', 'Go to'];
 
     const placeholder = [
@@ -16,12 +16,29 @@ const Search = ({tabIndex, onChange, value}) => {
                 <button className="button--fixed" style={{marginRight: 8}}>
                     {commands[tabIndex]}
                 </button>
+                {badgeActive && (
+                    <p
+                        className="type type--pos-small-normal"
+                        style={{
+                            background: '#18a0fb',
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            position: 'absolute',
+                            color: '#fff',
+                            left: 88,
+                            zIndex: 10,
+                        }}
+                    >
+                        {badgeType}
+                    </p>
+                )}
                 <input
                     className="input"
                     autoFocus
                     onChange={onChange}
-                    placeholder={placeholder[tabIndex]}
+                    placeholder={!badgeActive ? placeholder[tabIndex] : ''}
                     value={value}
+                    style={{paddingLeft: badgeActive && 48}}
                 />
             </div>
             <div
